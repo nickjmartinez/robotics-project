@@ -1,4 +1,4 @@
-image: "/home/bio8/u07nm18/catkin_ws/src/assessment/world/map.png"
+image: "/home/bio8/u07nm18/catkin_ws/src/robotics-project/world/map.png"
 resolution: 0.012
 origin: [-6.0, -4.8, 0.0]
 occupied_thresh: 0.65
