@@ -14,15 +14,20 @@ class transformer:
 		self.sub = rospy.Subscriber('/base_pose_ground_truth',Odometry,self.callback)
 		self.listener=tf.TransformListener()
 		self.m=Marker.Markers()
+		self.lastx=10000;
+		self.lasty=10000;
 
 	def callback(self,data):
 		local = data.pose.pose
+		pos = local.position
+		ori = local.orientation
 		try:
-			#print "Points: " + str(local.position.x) + str(local.position.y)
-			#ps=PointStamped(header=Header(stamp=rospy.Time.now(),frame_id="/odom"),point=Point(local.position.x,local.position.y,0))
-			#p = self.listener.transformPoint(ps,"/map")
-			#print "P Point: " + str(p.point.x) + str(p.point.y)
-			self.m.add(local.position.x,local.position.y,local.orientation.z,local.orientation.w,"map")
+			self.m.addTruePos(pos.x,pos.y,ori.z,ori.w,"map")
+			if((local.position.x != self.lastx) or (local.position.y != self.lasty)):
+				self.lastx = local.position.x
+				self.lasty = local.position.y
+				self.m.addPoint(local.position.x,local.position.y,"map")
+
 		except(tf.LookupException, tf.ExtrapolationException):
 			return
 		
