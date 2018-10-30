@@ -23,7 +23,14 @@ class Markers:
 		self.addArrow(self.trueArrowId,x,y,z,w,frame,ar,ag,ab)
 		self.addCube(self.trueCubeId,x,y,z,w,frame,cr,cg,cb)
 		
-	
+	def addFalsePos(self,x,y,z,w,frame):
+		#True Arrow RGB Values
+		ar, ag, ab = 0, 1.0, 0
+		#True Cube RGB Values
+		cr, cg, cb = 0, 1.0, 0
+		self.addArrow(self.falseArrowId,x,y,z,w,frame,ar,ag,ab)
+		self.addCube(self.falseCubeId,x,y,z,w,frame,cr,cg,cb)
+
 	def addArrow(self,i,x,y,z,w,frame,ar,ag,ab):
 		mr = Marker()
 		#Arrow XYZ Scale
