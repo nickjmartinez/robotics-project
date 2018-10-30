@@ -40,13 +40,12 @@ class transformer:
 		local = data.pose.pose
 		pos = local.position
 		ori = local.orientation
-		
-		
+	
 		try:
 			ps = PointStamped(header=Header(stamp=rospy.Time.now(),frame_id="/odom"),point=Point(pos.x,pos.y,0))
 			newp = self.listener.transformPoint("/map",ps)
-			#self.m.addFalsePos(newp.point.x,newp.point.y,ori.z,ori.w,"map")
-			self.m.addFalsePos(pos.x,pos.y,ori.z,ori.w,"map")
+			self.m.addFalsePos(newp.point.x,newp.point.y,ori.z,ori.w,"map")
+			#self.m.addFalsePos(pos.x,pos.y,ori.z,ori.w,"map")
 		except(tf.LookupException, tf.ExtrapolationException):
 			return
 
