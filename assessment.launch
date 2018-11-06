@@ -13,4 +13,7 @@
 	<!--  <node name="dummy_localization" pkg="dummy_localization" type="dummy_localization"/>  -->
 	<node name="dummy_localization" pkg="dummy_localization" type="dummy_localization.py"/>  
 	<node name="add_gaussian_noise" pkg="add_gaussian_noise" type="addGaussianNoise.py"/>
+	<node type="rviz" name="rviz" pkg="rviz" args="-d $(find assessment)/rviz/task1.rviz"/>
+	<node name="frame_transformer" pkg="assessment" type="frameTransformer.py"/>
+	<node name="controller" pkg="turtlesim" type="turtle_teleop_key" launch-prefix="xterm -e" args="turtle1/cmd_vel:=/cmd_vel"/>
 </launch>

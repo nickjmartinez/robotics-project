@@ -10,6 +10,7 @@ class Mapper:
 		msg = rospy.wait_for_message('/map', OccupancyGrid, timeout=None)
 		#store the occupancy grid and map meta data
 		self.grid = msg.data
+		print self.grid
 		self.metaData = msg.info
 		
 	def checkForOccupancy(self,x,y):#take in an xy point and return if it is occupied

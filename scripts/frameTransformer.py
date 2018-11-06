@@ -12,11 +12,13 @@ class transformer:
 	def __init__(self):
 		rospy.init_node('transformer')
 		self.sub = rospy.Subscriber('/base_pose_ground_truth',Odometry,self.updateTruePosition)
-		self.odomSub = rospy.Subscriber('/odom',Odometry,self.updateOdomPosition)
+		#self.odomSub = rospy.Subscriber('/odom',Odometry,self.updateOdomPosition)
 		self.listener=tf.TransformListener()
 		self.m=Marker.Markers()
 		self.lastx=10000;
 		self.lasty=10000;
+		self.br = tf.TransformBroadcaster()
+		self.rate=rospy.Rate(10.0)
 
 	def updateTruePosition(self,data):
 		#Set up variables for info from topic
@@ -24,8 +26,11 @@ class transformer:
 		pos = local.position
 		ori = local.orientation
 		
+		#update the real_robot_pose frame
+		self.br.sendTransform((pos.x,pos.y,pos.z),(ori.x,ori.y,ori.z,ori.w),rospy.Time.now(),"real_robot_pose","map")
+	
 		#Add the true position location and arrow
-		self.m.addTruePos(pos.x,pos.y,ori.z,ori.w,"map")
+		#self.m.addTruePos(0,0,0,1,"real_robot_pose")
 
 		#if our new location is different than the last one we painted, paint the new one
 		if((local.position.x != self.lastx) or (local.position.y != self.lasty)):

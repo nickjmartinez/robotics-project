@@ -12,7 +12,7 @@ class Markers:
 		self.falseCubeId = 3
 		self.i=4
 		self.markers=[]
-		self.pub=rospy.Publisher("/real_robot_pose", MarkerArray, queue_size=200)
+		self.pub=rospy.Publisher("/robot_marker_array", MarkerArray, queue_size=200)
 
 	
 	def addTruePos(self,x,y,z,w,frame):
