@@ -3,20 +3,18 @@ import roslib
 import rospy
 import Marker
 import tf
-from geometry_msgs.msg import PointStamped
-from std_msgs.msg import Header
-from geometry_msgs.msg import Point
+import numpy as np
 from nav_msgs.msg import Odometry
 
 class transformer:
 	def __init__(self):
 		rospy.init_node('transformer')
 		self.sub = rospy.Subscriber('/base_pose_ground_truth',Odometry,self.updateTruePosition)
-		self.m=Marker.Markers()
-		self.lastx=10000;
-		self.lasty=10000;
 		self.br = tf.TransformBroadcaster()
-		self.rate=rospy.Rate(10.0)
+		
+		self.m=Marker.Markers()
+		self.curx=np.inf;
+		self.cury=np.inf;
 
 	def updateTruePosition(self,data):
 		#Set up variables for info from topic
@@ -31,9 +29,9 @@ class transformer:
 		#self.m.addTruePos(0,0,0,1,"real_robot_pose")
 
 		#if our new location is different than the last one we painted, paint the new one
-		if((local.position.x != self.lastx) or (local.position.y != self.lasty)):
-			self.lastx = local.position.x
-			self.lasty = local.position.y
+		if((local.position.x != self.curx) or (local.position.y != self.cury)):
+			self.curx = local.position.x
+			self.cury = local.position.y
 			self.m.addPoint(local.position.x,local.position.y,"map")
 		
 		#Once called method to draw to RViz
