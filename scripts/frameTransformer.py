@@ -29,10 +29,10 @@ class transformer:
 		#self.m.addTruePos(0,0,0,1,"real_robot_pose")
 
 		#if our new location is different than the last one we painted, paint the new one
-		if((local.position.x != self.curx) or (local.position.y != self.cury)):
-			self.curx = local.position.x
-			self.cury = local.position.y
-			self.m.addPoint(local.position.x,local.position.y,"map")
+		if((pos.x != self.curx) or (pos.y != self.cury)):
+			self.curx = pos.x
+			self.cury = pos.y
+			self.m.addPoint(pos.x,pos.y,"map")
 		
 		#Once called method to draw to RViz
 		self.m.draw()

@@ -5,7 +5,8 @@ from nav_msgs.msg import OccupancyGrid
 
 class Mapper:
 	def __init__(self):
-		rospy.init_node('Mapper')
+		#rospy.init_node('Mapper')
+
 		#in order to guarentee we have received map info, wait for the message
 		msg = rospy.wait_for_message('/map', OccupancyGrid, timeout=None)
 		#store the occupancy grid and map meta data
@@ -30,21 +31,38 @@ class Mapper:
 		#	.	#
 		#		#
 		# # # # #
-	def checkForOccupancyInRange(self,x,y,range):
+	def checkForOccupancyInRange(self,_x,_y,off):
 		#cell offset value from center
-		offset = range/self.res
+		offset = int(off/self.res)
 		#x and y cell positions
-		x_cell = int((x-self.origin.x)/self.res)
-		y_cell = int((y-self.origin.y)/self.res)
+		x_cell = int((_x-self.origin.x)/self.res)
+		y_cell = int((_y-self.origin.y)/self.res)
+		
+		#print "My x coor is:",_x," and my y coor is:",_y
+		#print "My x cell is:",x_cell," and my y cell is:",y_cell
 
-		#top row, lock y - offset, cycle through x-+ offset
+		occupied = False
+		#top and top rows, lock y +- offset, cycle through x-+ offset
+		for x in range(x_cell - offset, x_cell + offset + 1):
+			if occupied:
+				break
+			if self.checkGridValue(x,y_cell+offset) or self.checkGridValue(x,y_cell-offset):
+				occupied = True
+		#side rows, lock x +- offset, cycle through y-+ offset
+		for y in range(y_cell - offset, y_cell + offset + 1):
+			if occupied:
+				break
+			if self.checkGridValue(x_cell+offset,y) or self.checkGridValue(x_cell-offset,y):
+				occupied = True
 	
+		return occupied
+
 	def checkGridValue(self, x_cell,y_cell):
 		#convert the cell coordinates to an index in the occupancy grid
 		gridIndex = x_cell + y_cell*self.metaData.width
 		
 		#if the grid has a value other than zero, lets assume it is occupied
-		return True if self.grid[gridIndex] != 0 else False
+		return True if self.grid[gridIndex] == 100 else False
 
 if __name__ == "__main__":
 	mappy = Mapper()
