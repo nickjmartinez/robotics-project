@@ -8,6 +8,7 @@ class Node:
 		self.parent = parent
 		self.goal = goal
 		self.f, self.g, self.h = self.calculateValues()
+		self.parent = None
 		self.children = []
 
 	#calculate the g,h, and then f values for this node

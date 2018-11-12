@@ -5,7 +5,7 @@ from nav_msgs.msg import OccupancyGrid
 
 class Mapper:
 	def __init__(self):
-		#rospy.init_node('Mapper')
+		rospy.init_node('Mapper')
 
 		#in order to guarentee we have received map info, wait for the message
 		msg = rospy.wait_for_message('/map', OccupancyGrid, timeout=None)
@@ -31,12 +31,17 @@ class Mapper:
 		#	.	#
 		#		#
 		# # # # #
-	def checkForOccupancyInRange(self,_x,_y,off):
+	def checkForOccupancyInRange(self,_x,_y,areCells,off):
 		#cell offset value from center
 		offset = int(off/self.res)
+		
 		#x and y cell positions
-		x_cell = int((_x-self.origin.x)/self.res)
-		y_cell = int((_y-self.origin.y)/self.res)
+		if areCells:
+			x_cell = _x
+			y_cell = _y
+		else:
+			x_cell = int((_x-self.origin.x)/self.res)
+			y_cell = int((_y-self.origin.y)/self.res)
 		
 		#print "My x coor is:",_x," and my y coor is:",_y
 		#print "My x cell is:",x_cell," and my y cell is:",y_cell
