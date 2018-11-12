@@ -3,63 +3,74 @@ import roslib
 import rospy
 import heapq as hq
 
+#point of interest class to hold start, goals, etc
 class poi:
 	def __init__(self,x,y):
 		self.x = x
 		self.y = y
 
-class Node:	#class to store the values for the a* algorithm
+#class to store the values for the a* algorithm
+class Node:
 	def __init__(self,x,y,parent):
 		self.x = x
 		self.y = y
 		self.parent = parent
 		self.f, self.g, self.h = self.calculateValues()
 		self.children = []
-	
+	#calculate the g,h, and then f values for this node
 	def calculateValues(self):
+		#if a parent exists, calculate values using it
 		if self.parent:
+			#if we are diagonal from our parent, our distance is 14 + their distance
 			if self.x != self.parent.x and self.y != self.parent.y:
 				g = self.parent.g + 14
+			#if we are level with them, our distance is 10 + their distance			
 			else:
 				g = self.parent.g + 10
-
+			#calculate the heuristic distance from the goal
 			h = self.heuristic()
+			#return g and h, as well as their sum f
 			return g+h,g,h
 		else:
+			#if we had no parent(starting node), return 0 for all
 			return 0,0,0
 	
 	def heuristic(self):
 		x = self.x
 		y = self.y
 		d = 0
-		#print "goal x",goal.x,"goal y",goal.y
+		#while our x and y are not equal to the goal, incriment them until one is
 		while x != goal.x and y != goal.y:
+			#get a 1 or -1 to add to our coordinates
 			dx = (goal.x - x)/(abs(goal.x-x))
 			dy = (goal.y - y)/(abs(goal.y-y))
-			#print dx,dy
+			#update positions
 			x = x + dx
 			y = y + dy
-			#print x,y
+			#since we moved diagonally, add 14 to distance
 			d = d + 14
+		#while our x or y is not equal to the goal, incriment until at goal
+		#since for these we are moving in a straight line, add 10 to distance
 		while x != goal.x:
 			dx = (goal.x - x)/(abs(goal.x-x))
 			x = x + dx
-			#print "x stuff:",x,dx
 			d = d + 10
 		while y != goal.y:
 			dy = (goal.y - y)/(abs(goal.y-y))
 			y = y+ dy
-			#print "y stuff:",y,dy
 			d = d + 10
-		#print "Done"
+		#reached goal, return distance there
 		return d
 	
+	#comparative function for nodes
 	def compare(self,node):
 		return True if self.x == node.x and self.y == node.y else False
-
+	
+	#print info for node
 	def pn(self):
 		print "Node at ("+str(self.x)+","+str(self.y)+"):		\n","f:",self.f,"g:",self.g,"h:",self.h
-
+	
+	#get the children of this node
 	def getChildren(self):
 		for i in range(-1,2):
 			for j in range(-1,2):
@@ -68,11 +79,3 @@ class Node:	#class to store the values for the a* algorithm
 				node = Node(self.x+i,self.y+j,self)
 				self.children.append(node)
 
-goal = poi(-3,3)
-
-n1 = Node(0,0,None)
-n1.pn()
-n1.getChildren()
-
-for n in n1.children:
-	n.pn()
