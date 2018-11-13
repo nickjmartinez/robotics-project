@@ -16,7 +16,8 @@ class pathMaker:
 		rospy.init_node('pathPlanner')
 
 		if rospy.get_param("robot_minDistance"):
-			print "Macy can you see this?"
+			startPos = rospy.get_param("robot_minDistance")
+			
 		else:
 			print "Macy what about this one?"
 

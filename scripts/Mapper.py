@@ -39,7 +39,7 @@ class Mapper:
 		if areCells:
 			x_cell = _x
 			y_cell = _y
-		else:
+		else: 
 			x_cell = int((_x-self.origin.x)/self.res)
 			y_cell = int((_y-self.origin.y)/self.res)
 		
@@ -47,7 +47,7 @@ class Mapper:
 		#print "My x cell is:",x_cell," and my y cell is:",y_cell
 
 		occupied = False
-		#top and top rows, lock y +- offset, cycle through x-+ offset
+		#top and bottom rows, lock y +- offset, cycle through x-+ offset
 		for x in range(x_cell - offset, x_cell + offset + 1):
 			if occupied:
 				break

@@ -2,7 +2,7 @@
 	<param name="/use_sim_time" value="true"/>
 	<rosparam param="robot_start">[-4.8,-3.6,0]</rosparam>
 	<rosparam param="robot_width">0.35</rosparam>
-	<rosparam param="robot_minDistance">0.096</rosparam>
+	<rosparam param="robot_minDistance">0.12</rosparam>
 	<rosparam param="goal0">[-2,-2]</rosparam> <!-- easy -->
 	<rosparam param="goal1">[2.5,-4.15]</rosparam> <!-- a bit harder -->
 	<rosparam param="goal2">aa[-2.55,3.13]</rosparam> <!-- same as above -->
