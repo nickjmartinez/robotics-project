@@ -11,71 +11,85 @@ class poi:
 		self.x = x
 		self.y = y
 
-def exists(node, li,heap):
-	if heap:
-		counter = 0
-		for i in li:
-			if node.compare(i[1]):
-				return True, counter
-			counter = counter + 1
-		return False, -1
-	else:
-		for i in li:
-			if node.compare(i):
-				return True
-		return False		
+class pathMaker:
+	def __init__(self):
+		rospy.init_node('pathPlanner')
 
-def astar(start,goal):
-	#create empty priority queue
-	openH = []
-	hq.heapify(openH)
+		if rospy.get_param("robot_minDistance"):
+			print "Macy can you see this?"
+		else:
+			print "Macy what about this one?"
+
+		start = poi(100,100)
+		goal = poi(125,110)
+
+		self.omap = Mapper()
+
+		self.nodeChain = self.astar(start,goal)
+
+	def exists(self,node, li,heap):
+		if heap:
+			counter = 0
+			for i in li:
+				if node.compare(i[1]):
+					return True, counter
+				counter = counter + 1
+			return False, -1
+		else:
+			for i in li:
+				if node.compare(i):
+					return True
+			return False		
+
+	def astar(self,start,goal):
+		#create empty priority queue
+		openH = []
+		hq.heapify(openH)
 	
-	#create an empty list to hold nodes we have been to
-	closedL = []
+		#create an empty list to hold nodes we have been to
+		closedL = []
 
-	#initialize the starting node and add it to the queue
-	startN = Node(start.x,start.y,None,goal)
-	hq.heappush(openH,(startN.f,startN))
+		#initialize the starting node and add it to the queue
+		startN = Node(start.x,start.y,None,goal)
+		hq.heappush(openH,(startN.f,startN))
 
-	#initialize a goal node
-	goalN = Node(goal.x,goal.y,None,goal)
+		#initialize a goal node
+		goalN = Node(goal.x,goal.y,None,goal)
 
-	#hold a record for the curr node for when we're done
-	curr = None
+		#hold a record for the curr node for when we're done
+		curr = None
 
-	while len(openH) != 0:
-		f, curr = hq.heappop(openH)
-		closedL.append(curr)
+		while len(openH) != 0:
+			f, curr = hq.heappop(openH)
+			closedL.append(curr)
 
-		if curr.compare(goalN):
-			break
+			if curr.compare(goalN):
+				break
 
-		curr.getChildren()
-		for child in curr.children:
-			if exists(child,closedL,False) or omap.checkForOccupancyInRange(child.x,child.y,True, 0.12):
+			curr.getChildren()
+			for child in curr.children:
+				if self.exists(child,closedL,False) or self.omap.checkForOccupancyInRange(child.x,child.y,True, 0.12):
 				
-				continue
+					continue
 			
-			exist, index = exists(child,openH,True)
+				exist, index = self.exists(child,openH,True)
 
-			if exist:
-				if child.h < openH[index][1].h:
-					openH[index][1].f = child.f
-					openH[index][1].g = child.g
-					openH[index][1].h = child.h
-					openH[index][1].parent = curr
+				if exist:
+					if child.h < openH[index][1].h:
+						openH[index][1].f = child.f
+						openH[index][1].g = child.g
+						openH[index][1].h = child.h
+						openH[index][1].parent = curr
 
-			if not exist:
-				child.parent = curr
-				hq.heappush(openH,(child.f,child))
-	curr.pn()	
-	while curr.parent:
-		parent = curr.parent
-		parent.pn()
-		curr = parent
-start = poi(100,100)
-goal = poi(125,110)
+				if not exist:
+					child.parent = curr
+					hq.heappush(openH,(child.f,child))
+		
+		return curr
+		#curr.pn()	
+		#while curr:
+		#	curr.pn()
+		#	parent = curr.parent
+		#	curr = parent
 
-omap = Mapper()
-
-astar(start,goal)
+pather = pathMaker()

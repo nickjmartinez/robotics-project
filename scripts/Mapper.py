@@ -5,7 +5,7 @@ from nav_msgs.msg import OccupancyGrid
 
 class Mapper:
 	def __init__(self):
-		rospy.init_node('Mapper')
+		#rospy.init_node('Mapper')
 
 		#in order to guarentee we have received map info, wait for the message
 		msg = rospy.wait_for_message('/map', OccupancyGrid, timeout=None)
