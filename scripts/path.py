@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import roslib
 import rospy
+import time
 import heapq as hq
+import numpy as np
 from Node import Node
 from Mapper import Mapper
 
@@ -14,33 +16,36 @@ class poi:
 class pathMaker:
 	def __init__(self):
 		rospy.init_node('pathPlanner')
-
-		if rospy.get_param("robot_minDistance"):
-			startPos = rospy.get_param("robot_minDistance")
-			
-		else:
-			print "Macy what about this one?"
+		self.mapper = Mapper()
+		#if rospy.get_param("robot_minDistance"):
+		#	startPos = rospy.get_param("robot_minDistance")
+		#	startx, starty = mapper.convertCoorToCells(startPos[0],startPos[1])
+		#	start
+		#else:
+		#	print "Macy what about this one?"
 
 		start = poi(100,100)
-		goal = poi(125,110)
+		goal = poi(333,250)
 
-		self.omap = Mapper()
-
-		self.nodeChain = self.astar(start,goal)
-
+		
+		startTime = time.time()
+		#self.nodeChain = self.astar(start,goal)
+		done = self.astar(start,goal)
+		done.pn()
+		print "Took",time.time() - startTime,"seconds"
 	def exists(self,node, li,heap):
 		if heap:
 			counter = 0
 			for i in li:
-				if node.compare(i[1]):
+				if node.compare(i[2]):
 					return True, counter
 				counter = counter + 1
 			return False, -1
 		else:
-			for i in li:
-				if node.compare(i):
-					return True
-			return False		
+			if li[node.y][node.x] == 0:
+				return False
+			else:
+				return True		
 
 	def astar(self,start,goal):
 		#create empty priority queue
@@ -48,11 +53,11 @@ class pathMaker:
 		hq.heapify(openH)
 	
 		#create an empty list to hold nodes we have been to
-		closedL = []
+		closedL = np.zeros((800,1000))
 
 		#initialize the starting node and add it to the queue
 		startN = Node(start.x,start.y,None,goal)
-		hq.heappush(openH,(startN.f,startN))
+		hq.heappush(openH,(startN.f,startN.h,startN))
 
 		#initialize a goal node
 		goalN = Node(goal.x,goal.y,None,goal)
@@ -61,33 +66,34 @@ class pathMaker:
 		curr = None
 
 		while len(openH) != 0:
-			f, curr = hq.heappop(openH)
-			closedL.append(curr)
+			f, h, curr = hq.heappop(openH)
+			closedL[curr.y][curr.x] = 1
+			
+			#curr.pn()
 
 			if curr.compare(goalN):
 				break
 
 			curr.getChildren()
 			for child in curr.children:
-				if self.exists(child,closedL,False) or self.omap.checkForOccupancyInRange(child.x,child.y,True, 0.12):
-				
+				if self.exists(child,closedL,False) or self.mapper.checkForOccupancyInRange(child.x,child.y,True, 0.12):
+					#print "we exited here at",child.x,child.y
 					continue
-			
-				exist, index = self.exists(child,openH,True)
+				else:
+					exist, index = self.exists(child,openH,True)
 
-				if exist:
-					if child.h < openH[index][1].h:
-						openH[index][1].f = child.f
-						openH[index][1].g = child.g
-						openH[index][1].h = child.h
-						openH[index][1].parent = curr
-
-				if not exist:
-					child.parent = curr
-					hq.heappush(openH,(child.f,child))
+					if exist:
+						#print "existed at",child.x,child.y
+						if child.h < openH[index][2].h:
+							openH[index] = (child.f,child.h,child)
+							hq.heapify(openH)
+					else:
+						#print "did not exist at",child.x,child.y
+						child.parent = curr
+						hq.heappush(openH,(child.f,child.h,child))
 		
 		return curr
-		#curr.pn()	
+		curr.pn()	
 		#while curr:
 		#	curr.pn()
 		#	parent = curr.parent

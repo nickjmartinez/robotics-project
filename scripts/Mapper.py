@@ -5,6 +5,7 @@ from nav_msgs.msg import OccupancyGrid
 
 class Mapper:
 	def __init__(self):
+		#this line is only required if mapper is by itself, not attached to a node
 		#rospy.init_node('Mapper')
 
 		#in order to guarentee we have received map info, wait for the message
@@ -37,11 +38,9 @@ class Mapper:
 		
 		#x and y cell positions
 		if areCells:
-			x_cell = _x
-			y_cell = _y
+			x_cell, y_cell = _x,_y
 		else: 
-			x_cell = int((_x-self.origin.x)/self.res)
-			y_cell = int((_y-self.origin.y)/self.res)
+			x_cell, y_cell = self.convertCoorToCells(_x,_y)
 		
 		#print "My x coor is:",_x," and my y coor is:",_y
 		#print "My x cell is:",x_cell," and my y cell is:",y_cell
@@ -59,7 +58,7 @@ class Mapper:
 				break
 			if self.checkGridValue(x_cell+offset,y) or self.checkGridValue(x_cell-offset,y):
 				occupied = True
-	
+		
 		return occupied
 
 	def checkGridValue(self, x_cell,y_cell):
@@ -68,6 +67,11 @@ class Mapper:
 		
 		#if the grid has a value other than zero, lets assume it is occupied
 		return True if self.grid[gridIndex] == 100 else False
+	
+	def convertCoorToCells(self,x_coor,y_coor):
+		x_cell = int((x_coor-self.origin.x)/self.res)
+		y_cell = int((y_coor-self.origin.y)/self.res)
+		return x_cell, y_cell
 
 if __name__ == "__main__":
 	mappy = Mapper()
