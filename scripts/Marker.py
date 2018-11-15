@@ -5,11 +5,10 @@ from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 
 class MarkerMaker:
-	def __init__(self,pubTopic):
+	def __init__(self,pubTopic,latch):
 		self.i=0
 		self.markers=[]
-		self.markerArray=MarkerArray()
-		self.pub=rospy.Publisher(pubTopic, MarkerArray, queue_size=200)
+		self.pub=rospy.Publisher(pubTopic, MarkerArray, queue_size=200,latch=latch)
 		
 	def addPoint(self,x,y,frame):
 		mr=Marker()
@@ -45,10 +44,7 @@ class MarkerMaker:
 		self.markers.append(mr)
 
 	def draw(self):
-		self.markerArray = MarkerArray()
+		markerArray = MarkerArray()
 		for m in self.markers:
-			self.markerArray.markers.append(m)
-		self.publishArray()
-
-	def publishArray(self):
-		self.pub.publish(self.markerArray)
+			markerArray.markers.append(m)
+		self.pub.publish(markerArray)

@@ -5,7 +5,7 @@
 	<rosparam param="robot_minDistance">0.12</rosparam>
 	<rosparam param="goal0">[-2,-2]</rosparam> <!-- easy -->
 	<rosparam param="goal1">[2.5,-4.15]</rosparam> <!-- a bit harder -->
-	<rosparam param="goal2">aa[-2.55,3.13]</rosparam> <!-- same as above -->
+	<rosparam param="goal2">[-2.55,3.13]</rosparam> <!-- same as above -->
 	<rosparam param="goal3">[4.5,-3.5]</rosparam>  <!-- much harder -->
 	<rosparam param="goal4">[5.15,2]</rosparam> <!-- very hard -->
 	<node name="map_server" pkg="map_server" type="map_server" args="$(find assessment)/world/map.yaml" />

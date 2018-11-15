@@ -18,59 +18,71 @@ class pathMaker:
 	def __init__(self):
 		rospy.init_node('pathPlanner')
 		self.mapper = Mapper()
-		self.marker = MarkerMaker("/path")
-		self.start, self.goal = self.makePOIs()
-		
-		startTime = time.time()
-		nodeChain = self.runAStar()
-		print "Took",time.time() - startTime,"seconds"
-		
-		self.path = self.makePath(nodeChain)
-		self.publishPath()
+		self.marker = MarkerMaker("/path",True)
+		self.path = []
+		self.runAStar()
 
 	def runAStar(self):
-		finalNode = self.astar(self.start,self.goal)
-		finalNode.pn()
-		return finalNode
+		start, goals = self.makePOIs()
 
+		currGoal = poi(goals[0][0],goals[0][1])
+		
+		print "Starting A* Algorithm"
+		startTime = time.time()
+		self.astar(start,currGoal)
+		
+		start = currGoal
+		currGoal = poi(goals[2][0],goals[2][1])
+		self.astar(start,currGoal)
+
+		start = currGoal
+		currGoal = poi(goals[1][0],goals[1][1])
+		self.astar(start,currGoal)
+
+		print "Took",time.time() - startTime,"seconds"
+
+		self.publishPath()
+	
 	def makePath(self,nodeChain):
 		path = []
 		curr = nodeChain
+		counter = 0
 		while curr:
-			path.append((curr.x,curr.y))
+			if counter%7 == 0:
+				x,y = self.mapper.convertCellToCoor(curr.x,curr.y)
+				path.append((x,y))
 			curr = curr.parent
+			counter+= 1
+			
 		path.reverse()
-	
-		return path
+		self.path.extend(path)
 
 	def publishPath(self):
 		for i in self.path:
 			self.marker.addPathPoint(i[0],i[1],"map")
 		self.marker.draw()
-		
-		rate = rospy.Rate(5)
-		while not rospy.is_shutdown():
-			self.marker.publishArray()
-			rate.sleep()
-			
+		print "Publish path to latch /path topic. Going idle"
 
 	def makePOIs(self):
-		if rospy.get_param("robot_start") and rospy.get_param("goal0"):
-			startPos = rospy.get_param("robot_start")
-			goal = rospy.get_param("goal0")
-			
-			print startPos, goal
-			startx, starty = self.mapper.convertCoorToCells(startPos[0],startPos[1])
-			goalx, goaly = self.mapper.convertCoorToCells(goal[0],goal[1])
-		
-			print startx,starty,goalx,goaly
-			start = poi(startx,starty)
-			goal = poi(goalx,goaly)
+		startPos = rospy.get_param("robot_start")
+		goalCoors = []
 
-		else:
-			start = poi(100,100)
-			goal = poi(333,250)
-		return start, goal
+		for i in range(5):
+			string = "goal"
+			string += str(i)
+			goalCoors.append(rospy.get_param(string))
+		print "Starting Point:",startPos[0],startPos[1]
+		
+		startx, starty = self.mapper.convertCoorToCells(startPos[0],startPos[1])
+		
+		goals = []
+		for i,j in goalCoors:
+			goalx, goaly = self.mapper.convertCoorToCells(i,j)
+			goals.append((goalx,goaly))
+	
+		start = poi(startx,starty)
+
+		return start, goals
 
 	def exists(self,node, li):
 			if li[node.y][node.x] == 0:
@@ -137,6 +149,7 @@ class pathMaker:
 						hq.heappush(openH,(child.f,child.h,child))
 						openL[child.y][child.x] = child.h
 		
-		return curr
+		self.makePath(curr)
 
 pather = pathMaker()
+rospy.spin()
