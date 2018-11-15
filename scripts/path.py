@@ -6,6 +6,7 @@ import heapq as hq
 import numpy as np
 from Node import Node
 from Mapper import Mapper
+from Marker import MarkerMaker
 
 #point of interest class to hold start, goals, etc
 class poi:
@@ -17,47 +18,89 @@ class pathMaker:
 	def __init__(self):
 		rospy.init_node('pathPlanner')
 		self.mapper = Mapper()
-		#if rospy.get_param("robot_minDistance"):
-		#	startPos = rospy.get_param("robot_minDistance")
-		#	startx, starty = mapper.convertCoorToCells(startPos[0],startPos[1])
-		#	start
-		#else:
-		#	print "Macy what about this one?"
-
-		start = poi(100,100)
-		goal = poi(333,250)
-
+		self.marker = MarkerMaker("/path")
+		self.start, self.goal = self.makePOIs()
 		
 		startTime = time.time()
-		#self.nodeChain = self.astar(start,goal)
-		done = self.astar(start,goal)
-		done.pn()
+		nodeChain = self.runAStar()
 		print "Took",time.time() - startTime,"seconds"
-	def exists(self,node, li,heap):
-		if heap:
-			counter = 0
-			for i in li:
-				if node.compare(i[2]):
-					return True, counter
-				counter = counter + 1
-			return False, -1
+		
+		self.path = self.makePath(nodeChain)
+		self.publishPath()
+
+	def runAStar(self):
+		finalNode = self.astar(self.start,self.goal)
+		finalNode.pn()
+		return finalNode
+
+	def makePath(self,nodeChain):
+		path = []
+		curr = nodeChain
+		while curr:
+			path.append((curr.x,curr.y))
+			curr = curr.parent
+		path.reverse()
+	
+		return path
+
+	def publishPath(self):
+		for i in self.path:
+			self.marker.addPathPoint(i[0],i[1],"map")
+		self.marker.draw()
+		
+		rate = rospy.Rate(5)
+		while not rospy.is_shutdown():
+			self.marker.publishArray()
+			rate.sleep()
+			
+
+	def makePOIs(self):
+		if rospy.get_param("robot_start") and rospy.get_param("goal0"):
+			startPos = rospy.get_param("robot_start")
+			goal = rospy.get_param("goal0")
+			
+			print startPos, goal
+			startx, starty = self.mapper.convertCoorToCells(startPos[0],startPos[1])
+			goalx, goaly = self.mapper.convertCoorToCells(goal[0],goal[1])
+		
+			print startx,starty,goalx,goaly
+			start = poi(startx,starty)
+			goal = poi(goalx,goaly)
+
 		else:
+			start = poi(100,100)
+			goal = poi(333,250)
+		return start, goal
+
+	def exists(self,node, li):
 			if li[node.y][node.x] == 0:
 				return False
 			else:
 				return True		
 
+	def getIndexInHeap(self, node, heap):
+		counter = 0
+		for i in heap:
+			if node.compare(i[2]):
+				return counter
+			counter = counter + 1
+		return -1
+
 	def astar(self,start,goal):
 		#create empty priority queue
 		openH = []
 		hq.heapify(openH)
-	
+		
+		#create an empty list to hold open node h values
+		openL = np.zeros((self.mapper.metaData.height,self.mapper.metaData.width))
+
 		#create an empty list to hold nodes we have been to
-		closedL = np.zeros((800,1000))
+		closedL = np.zeros((self.mapper.metaData.height,self.mapper.metaData.width))
 
 		#initialize the starting node and add it to the queue
 		startN = Node(start.x,start.y,None,goal)
 		hq.heappush(openH,(startN.f,startN.h,startN))
+		openL[startN.y][startN.x] = startN.h
 
 		#initialize a goal node
 		goalN = Node(goal.x,goal.y,None,goal)
@@ -67,6 +110,7 @@ class pathMaker:
 
 		while len(openH) != 0:
 			f, h, curr = hq.heappop(openH)
+			openL[curr.y][curr.x] = 0
 			closedL[curr.y][curr.x] = 1
 			
 			#curr.pn()
@@ -76,27 +120,23 @@ class pathMaker:
 
 			curr.getChildren()
 			for child in curr.children:
-				if self.exists(child,closedL,False) or self.mapper.checkForOccupancyInRange(child.x,child.y,True, 0.12):
+				if self.exists(child,closedL) or self.mapper.checkForOccupancyInRange(child.x,child.y,True, 0.12):
 					#print "we exited here at",child.x,child.y
 					continue
 				else:
-					exist, index = self.exists(child,openH,True)
+					exist = self.exists(child,openL)
 
 					if exist:
-						#print "existed at",child.x,child.y
-						if child.h < openH[index][2].h:
+						if child.h < openL[child.y][child.x]:
+							index = self.getIndexInHeap(child, openH)
 							openH[index] = (child.f,child.h,child)
 							hq.heapify(openH)
+							openL[child.y][child.x] = child.h
 					else:
-						#print "did not exist at",child.x,child.y
 						child.parent = curr
 						hq.heappush(openH,(child.f,child.h,child))
+						openL[child.y][child.x] = child.h
 		
 		return curr
-		curr.pn()	
-		#while curr:
-		#	curr.pn()
-		#	parent = curr.parent
-		#	curr = parent
 
 pather = pathMaker()

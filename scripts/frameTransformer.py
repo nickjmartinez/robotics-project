@@ -12,7 +12,7 @@ class transformer:
 		self.sub = rospy.Subscriber('/base_pose_ground_truth',Odometry,self.updateTruePosition)
 		self.br = tf.TransformBroadcaster()
 		
-		self.m=Marker.Markers("/robot_marker_array")
+		self.m=Marker.MarkerMaker("/robot_marker_array")
 		self.curx=np.inf;
 		self.cury=np.inf;
 

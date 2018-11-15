@@ -21,8 +21,7 @@ class Mapper:
 		res = self.metaData.resolution
 
 		#get the x and y cell positions as specified in the map.yaml
-		x_cell = int((x-self.origin.x)/self.res)
-		y_cell = int((y-self.origin.y)/self.res)
+		x_cell, y_cell = self.convertCoorToCells(x,y)
 
 		return self.checkGridValue(x_cell,y_cell)
 		
@@ -72,6 +71,11 @@ class Mapper:
 		x_cell = int((x_coor-self.origin.x)/self.res)
 		y_cell = int((y_coor-self.origin.y)/self.res)
 		return x_cell, y_cell
+
+	def convertCellToCoor(self,x_cell,y_cell):
+		x_coor = x_cell * self.res + self.origin.x
+		y_coor = y_cell * self.res + self.origin.y
+		return x_coor,y_coor
 
 if __name__ == "__main__":
 	mappy = Mapper()
