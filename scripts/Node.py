@@ -17,7 +17,7 @@ class Node:
 		if self.parent:
 			#if we are diagonal from our parent, our distance is 14 + their distance
 			if self.x != self.parent.x and self.y != self.parent.y:
-				g = self.parent.g + 14
+				g = self.parent.g + 15
 			#if we are level with them, our distance is 10 + their distance			
 			else:
 				g = self.parent.g + 10

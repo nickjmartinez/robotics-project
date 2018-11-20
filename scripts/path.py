@@ -16,33 +16,39 @@ class poi:
 
 class pathMaker:
 	def __init__(self):
-		rospy.init_node('pathPlanner')
+		#rospy.init_node('pathPlanner')
 		self.mapper = Mapper()
-		self.marker = MarkerMaker("/path",True)
+		self.marker = MarkerMaker("/path_markers",True)
+		#self.pub=rospy.Publisher(pubTopic, MarkerArray, queue_size=200,latch=latch)
 		self.path = []
-		self.runAStar()
+		
 
 	def runAStar(self):
 		start, goals = self.makePOIs()
-
-		currGoal = poi(goals[0][0],goals[0][1])
 		
+		currPos = start
+		currGoal = goals[0]
+
 		print "Starting A* Algorithm"
 		startTime = time.time()
-		self.astar(start,currGoal)
+		self.astar(currPos,currGoal)
 		
-		start = currGoal
-		currGoal = poi(goals[2][0],goals[2][1])
-		self.astar(start,currGoal)
+		currPos = currGoal
+		currGoal = goals[1]
+		#self.astar(currPos,currGoal)
 
-		start = currGoal
-		currGoal = poi(goals[1][0],goals[1][1])
-		self.astar(start,currGoal)
+		currPos = currGoal
+		currGoal = goals[3]
+		#self.astar(currPos,currGoal)
+
+		currPos = currGoal
+		currGoal = goals[2]
+		#self.astar(currPos,currGoal)
 
 		print "Took",time.time() - startTime,"seconds"
 
 		self.publishPath()
-	
+
 	def makePath(self,nodeChain):
 		path = []
 		curr = nodeChain
@@ -50,7 +56,7 @@ class pathMaker:
 		while curr:
 			if counter%7 == 0:
 				x,y = self.mapper.convertCellToCoor(curr.x,curr.y)
-				path.append((x,y))
+				path.append((round(x,2),round(y,2)))
 			curr = curr.parent
 			counter+= 1
 			
@@ -61,7 +67,7 @@ class pathMaker:
 		for i in self.path:
 			self.marker.addPathPoint(i[0],i[1],"map")
 		self.marker.draw()
-		print "Publish path to latch /path topic. Going idle"
+		print "Published path to latched /path_markers topic."
 
 	def makePOIs(self):
 		startPos = rospy.get_param("robot_start")
@@ -78,7 +84,7 @@ class pathMaker:
 		goals = []
 		for i,j in goalCoors:
 			goalx, goaly = self.mapper.convertCoorToCells(i,j)
-			goals.append((goalx,goaly))
+			goals.append(poi(goalx,goaly))
 	
 		start = poi(startx,starty)
 
@@ -151,5 +157,5 @@ class pathMaker:
 		
 		self.makePath(curr)
 
-pather = pathMaker()
-rospy.spin()
+#pather = pathMaker()
+#rospy.spin()
