@@ -17,7 +17,7 @@ class Node:
 		if self.parent:
 			#if we are diagonal from our parent, our distance is 14 + their distance
 			if self.x != self.parent.x and self.y != self.parent.y:
-				g = self.parent.g + 15
+				g = self.parent.g + 14
 			#if we are level with them, our distance is 10 + their distance			
 			else:
 				g = self.parent.g + 10
@@ -42,7 +42,7 @@ class Node:
 			x = x + dx
 			y = y + dy
 			#since we moved diagonally, add 14 to distance
-			d = d + 14
+			d = d + 15
 		#while our x or y is not equal to the goal, incriment until at goal
 		#since for these we are moving in a straight line, add 10 to distance
 		while x != self.goal.x:

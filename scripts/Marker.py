@@ -24,6 +24,13 @@ class MarkerMaker:
 		self.addMarker(mr,frame,self.i,mr.CUBE,mr.ADD,x,y,0.0,0.0,px,py,pz,pr,pg,pb)
 		self.i+=1
 
+	def addGoalPoint(self,x,y,frame):
+		mr=Marker()
+		px, py, pz = 0.10, 0.10, 0.10
+		pr, pg, pb = 0, 1.0, 0
+		self.addMarker(mr,frame,self.i,mr.CUBE,mr.ADD,x,y,0.0,0.0,px,py,pz,pr,pg,pb)
+		self.i+=1
+
 	def addMarker(self,mr,frame,i,shape,action,x,y,z,w,sx,sy,sz,r,g,b):
 		mr.header.frame_id=frame
 		mr.ns="basic"

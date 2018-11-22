@@ -73,8 +73,8 @@ class Mapper:
 		return x_cell, y_cell
 
 	def convertCellToCoor(self,x_cell,y_cell):
-		x_coor = x_cell * self.res + self.origin.x
-		y_coor = y_cell * self.res + self.origin.y
+		x_coor = round(x_cell * self.res + self.origin.x,2)
+		y_coor = round(y_cell * self.res + self.origin.y,2)
 		return x_coor,y_coor
 
 if __name__ == "__main__":
