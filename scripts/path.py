@@ -63,10 +63,11 @@ class pathMaker:
 			currPos = target
 			goals.pop(minGoalIndex)
 			#break#remove when ready to vist all goals
+			self.publishPath()
 			
 		print "A* finished in",round(time.time() - self.timer,2),"seconds"
 
-		self.publishPath()
+		
 
 	def makePath(self,nodeChain):
 		path = []
@@ -86,7 +87,7 @@ class pathMaker:
 		for i in self.path:
 			self.marker.addPathPoint(i[0],i[1],"map")
 		self.marker.draw()
-		print "Published path to latched /path_markers topic."
+		#print "Published path to latched /path_markers topic."
 
 	def makePOIs(self):
 		startPos = rospy.get_param("robot_start")

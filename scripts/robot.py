@@ -53,7 +53,7 @@ class robot:
 				self.driving = False
 				self.rotating = True
 				tw.linear.x = 0.0
-				tw.angular.z = 0.4*(self.ang-self.yaw)/abs(self.ang-self.yaw)
+				tw.angular.z = 0.6*(self.ang-self.yaw)/abs(self.ang-self.yaw)
 			else:
 				tw.linear.x = 0.0
 				tw.angular.z = 0.0
