@@ -24,7 +24,8 @@ class robot:
 
 		self.rotating = False
 		self.driving = False
-
+		
+		print "Beginning robot movement along path"
 		self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 		self.sub = rospy.Subscriber('/base_pose_ground_truth',Odometry,self.callback)
 		
